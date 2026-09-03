@@ -1,0 +1,382 @@
+/* ==========================================================================
+   "Ask Hope" — site assistant
+   --------------------------------------------------------------------------
+   Uses the design tokens defined in main.css, so it inherits the rebrand
+   palette and type automatically. Load this AFTER main.css.
+   ========================================================================== */
+
+.hopebot {
+  --bot-w: 396px;
+  --bot-radius: 20px;
+  position: fixed;
+  right: clamp(1rem, 3vw, 1.75rem);
+  bottom: clamp(1rem, 3vw, 1.75rem);
+  z-index: 120;
+  font-family: var(--font-body);
+}
+
+/* --------------------------------------------------------------------------
+   Launcher
+   -------------------------------------------------------------------------- */
+.hopebot__launch {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.85rem 1.35rem 0.85rem 1.05rem;
+  border: 0;
+  border-radius: var(--r-pill);
+  background: var(--blue-900);
+  color: #fff;
+  font-family: var(--font-body);
+  font-size: 0.94rem;
+  font-weight: 700;
+  cursor: pointer;
+  box-shadow: 0 6px 18px rgba(10, 30, 41, 0.22), 0 18px 44px rgba(10, 30, 41, 0.18);
+  transition: transform 0.25s var(--ease), box-shadow 0.25s var(--ease),
+              background-color 0.25s var(--ease), opacity 0.2s var(--ease);
+}
+.hopebot__launch:hover {
+  background: var(--spring-700);
+  transform: translateY(-2px);
+  box-shadow: 0 10px 24px rgba(10, 30, 41, 0.26), 0 24px 56px rgba(10, 30, 41, 0.22);
+}
+.hopebot__launch:active { transform: translateY(0); }
+.hopebot__launch svg { width: 20px; height: 20px; flex: none; }
+
+.hopebot__pulse {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: var(--gold-500);
+  box-shadow: 0 0 0 0 rgba(233, 169, 60, 0.7);
+  animation: hopebotPulse 2.6s var(--ease) infinite;
+}
+@keyframes hopebotPulse {
+  0%   { box-shadow: 0 0 0 0 rgba(233, 169, 60, 0.65); }
+  70%  { box-shadow: 0 0 0 11px rgba(233, 169, 60, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(233, 169, 60, 0); }
+}
+
+.hopebot.is-open .hopebot__launch {
+  opacity: 0;
+  pointer-events: none;
+  transform: scale(0.9);
+}
+
+/* --------------------------------------------------------------------------
+   Panel
+   -------------------------------------------------------------------------- */
+.hopebot__panel {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  width: var(--bot-w);
+  max-width: calc(100vw - 2rem);
+  height: min(620px, calc(100dvh - 6rem));
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  background: var(--sand-50);
+  border: 1px solid var(--border);
+  border-radius: var(--bot-radius);
+  box-shadow: 0 12px 32px rgba(10, 30, 41, 0.18), 0 40px 90px rgba(10, 30, 41, 0.24);
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(14px) scale(0.98);
+  transform-origin: bottom right;
+  transition: opacity 0.28s var(--ease), transform 0.32s var(--ease), visibility 0.32s;
+}
+.hopebot.is-open .hopebot__panel {
+  opacity: 1;
+  visibility: visible;
+  transform: none;
+}
+
+/* Header */
+.hopebot__head {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.95rem 1rem;
+  background: var(--blue-900);
+  color: #fff;
+  flex: none;
+}
+.hopebot__avatar {
+  width: 38px;
+  height: 38px;
+  flex: none;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.12);
+  border: 1px solid rgba(255, 255, 255, 0.22);
+}
+.hopebot__avatar svg { width: 19px; height: 19px; }
+.hopebot__id { flex: 1; min-width: 0; line-height: 1.25; }
+.hopebot__name {
+  display: block;
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 1rem;
+  letter-spacing: -0.01em;
+}
+.hopebot__status {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-family: var(--font-mono);
+  font-size: 0.62rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--gold-300);
+}
+.hopebot__status::before {
+  content: "";
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--spring-300);
+  flex: none;
+}
+.hopebot__close {
+  width: 34px;
+  height: 34px;
+  flex: none;
+  display: grid;
+  place-items: center;
+  border: 1px solid rgba(255, 255, 255, 0.24);
+  border-radius: 50%;
+  background: transparent;
+  color: #fff;
+  cursor: pointer;
+  transition: background-color 0.2s var(--ease), transform 0.2s var(--ease);
+}
+.hopebot__close:hover { background: rgba(255, 255, 255, 0.14); transform: rotate(90deg); }
+.hopebot__close svg { width: 15px; height: 15px; }
+
+/* Message log */
+.hopebot__log {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding: 1.1rem 1rem 0.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.7rem;
+  scrollbar-width: thin;
+}
+.hopebot__log::-webkit-scrollbar { width: 8px; }
+.hopebot__log::-webkit-scrollbar-thumb {
+  background: var(--sand-300);
+  border-radius: 8px;
+  border: 2px solid var(--sand-50);
+}
+
+.hopebot__msg {
+  max-width: 88%;
+  padding: 0.7rem 0.9rem;
+  border-radius: 14px;
+  font-size: 0.93rem;
+  line-height: 1.55;
+  animation: hopebotIn 0.32s var(--ease) both;
+}
+@keyframes hopebotIn {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: none; }
+}
+.hopebot__msg p { margin: 0 0 0.6rem; }
+.hopebot__msg p:last-child { margin-bottom: 0; }
+.hopebot__msg strong { font-weight: 700; }
+.hopebot__msg ul {
+  margin: 0.3rem 0 0.6rem;
+  padding-left: 1.05rem;
+}
+.hopebot__msg li { margin-bottom: 0.25rem; }
+
+.hopebot__msg--bot {
+  align-self: flex-start;
+  background: #fff;
+  border: 1px solid var(--border);
+  border-bottom-left-radius: 5px;
+  color: var(--text);
+}
+.hopebot__msg--user {
+  align-self: flex-end;
+  background: var(--blue-900);
+  border-bottom-right-radius: 5px;
+  color: #fff;
+}
+
+/* Inline source links inside an answer */
+.hopebot__links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  margin-top: 0.65rem;
+  padding-top: 0.65rem;
+  border-top: 1px solid var(--border);
+}
+.hopebot__links a {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  padding: 0.32rem 0.7rem;
+  border-radius: var(--r-pill);
+  background: rgba(28, 135, 166, 0.09);
+  color: var(--blue-700);
+  font-size: 0.79rem;
+  font-weight: 700;
+  text-decoration: none;
+  transition: background-color 0.2s var(--ease), color 0.2s var(--ease);
+}
+.hopebot__links a::after { content: "→"; font-weight: 400; }
+.hopebot__links a:hover { background: var(--blue-900); color: #fff; }
+
+/* Typing indicator */
+.hopebot__typing {
+  align-self: flex-start;
+  display: inline-flex;
+  gap: 4px;
+  padding: 0.85rem 0.95rem;
+  background: #fff;
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  border-bottom-left-radius: 5px;
+}
+.hopebot__typing span {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--sand-300);
+  animation: hopebotDot 1.3s var(--ease) infinite;
+}
+.hopebot__typing span:nth-child(2) { animation-delay: 0.16s; }
+.hopebot__typing span:nth-child(3) { animation-delay: 0.32s; }
+@keyframes hopebotDot {
+  0%, 60%, 100% { opacity: 0.35; transform: translateY(0); }
+  30%           { opacity: 1;    transform: translateY(-4px); }
+}
+
+/* Suggestion chips */
+.hopebot__chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  padding: 0.25rem 1rem 0.75rem;
+  flex: none;
+}
+.hopebot__chip {
+  padding: 0.42rem 0.85rem;
+  border: 1px solid var(--border-strong);
+  border-radius: var(--r-pill);
+  background: transparent;
+  color: var(--text);
+  font-family: var(--font-body);
+  font-size: 0.8rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.2s var(--ease), color 0.2s var(--ease),
+              border-color 0.2s var(--ease), transform 0.2s var(--ease);
+}
+.hopebot__chip:hover {
+  background: var(--spring-500);
+  border-color: var(--spring-500);
+  color: #fff;
+  transform: translateY(-1px);
+}
+
+/* Composer */
+.hopebot__form {
+  display: flex;
+  align-items: flex-end;
+  gap: 0.5rem;
+  padding: 0.75rem 0.85rem;
+  border-top: 1px solid var(--border);
+  background: #fff;
+  flex: none;
+}
+.hopebot__input {
+  flex: 1;
+  min-width: 0;
+  resize: none;
+  max-height: 110px;
+  padding: 0.62rem 0.85rem;
+  border: 1.5px solid var(--border-strong);
+  border-radius: 14px;
+  background: var(--sand-50);
+  color: var(--text);
+  font-family: var(--font-body);
+  font-size: 0.92rem;
+  line-height: 1.45;
+  transition: border-color 0.2s var(--ease), box-shadow 0.2s var(--ease);
+}
+.hopebot__input:focus {
+  outline: none;
+  border-color: var(--blue-500);
+  box-shadow: 0 0 0 3px rgba(28, 135, 166, 0.14);
+}
+.hopebot__send {
+  width: 42px;
+  height: 42px;
+  flex: none;
+  display: grid;
+  place-items: center;
+  border: 0;
+  border-radius: 50%;
+  background: var(--gold-500);
+  color: var(--ink);
+  cursor: pointer;
+  transition: background-color 0.2s var(--ease), transform 0.2s var(--ease);
+}
+.hopebot__send:hover { background: var(--spring-500); color: #fff; transform: scale(1.05); }
+.hopebot__send:disabled { opacity: 0.45; cursor: not-allowed; transform: none; }
+.hopebot__send svg { width: 18px; height: 18px; }
+
+/* Disclosure line — this is a scripted guide, not a language model */
+.hopebot__foot {
+  padding: 0 1rem 0.7rem;
+  margin: 0;
+  font-size: 0.68rem;
+  line-height: 1.4;
+  color: var(--text-muted);
+  text-align: center;
+  background: #fff;
+  flex: none;
+}
+.hopebot__foot a { color: var(--blue-700); }
+
+/* --------------------------------------------------------------------------
+   Phone layout — full-screen sheet
+   -------------------------------------------------------------------------- */
+@media (max-width: 560px) {
+  .hopebot { right: 0; bottom: 0; left: 0; }
+  .hopebot__launch {
+    position: absolute;
+    right: 1rem;
+    bottom: 1rem;
+  }
+  .hopebot__panel {
+    position: fixed;
+    inset: 0;
+    width: 100%;
+    max-width: none;
+    height: 100dvh;
+    border-radius: 0;
+    border: 0;
+    transform: translateY(100%);
+  }
+  .hopebot__msg { max-width: 92%; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hopebot__panel,
+  .hopebot__launch,
+  .hopebot__msg { transition-duration: 0.001ms; animation: none; }
+  .hopebot__pulse,
+  .hopebot__typing span { animation: none; }
+}
